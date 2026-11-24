@@ -1,0 +1,786 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>La Cuenta Porfa</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap">
+<style>
+  /* Layout: toda la página es una boleta de papel sobre un fondo liso. Las secciones se separan con líneas punteadas y el total va al final, como en el comprobante de un restaurante. */
+  :root {
+    --bg: #d8d8d8;
+    --paper: #ffffff;
+    --fg: #141414;
+    --muted: #5a5a5a;
+    --line: #bdbdbd;
+    --accent: #141414;
+    --accent-fg: #ffffff;
+    --accent-soft: #ececec;
+    --danger: #000000;
+    --shadow: rgba(0, 0, 0, 0.25);
+    --font-display: "Special Elite", "Courier New", ui-monospace, monospace;
+    --font-body: "Courier Prime", "Courier New", ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c0c0c; --paper: #1d1d1d; --fg: #f2f2f2; --muted: #a8a8a8; --line: #3f3f3f;
+      --accent: #f5f5f5; --accent-fg: #111111; --accent-soft: #2d2d2d; --danger: #ffffff; --shadow: rgba(0, 0, 0, 0.6);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0c0c; --paper: #1d1d1d; --fg: #f2f2f2; --muted: #a8a8a8; --line: #3f3f3f;
+    --accent: #f5f5f5; --accent-fg: #111111; --accent-soft: #2d2d2d; --danger: #ffffff; --shadow: rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.45;
+    padding-block: 28px 44px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  /* El papel: bordes con perforación arriba y abajo */
+  .wrap {
+    position: relative;
+    max-width: 520px;
+    margin: 0 auto;
+    background: var(--paper);
+    padding: 26px 20px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    filter: drop-shadow(0 4px 10px var(--shadow));
+  }
+  .wrap::before, .wrap::after { content: ""; position: absolute; left: 0; right: 0; height: 10px; }
+  .wrap::before { top: -10px; background: radial-gradient(circle at 10px 0, transparent 6px, var(--paper) 6.5px) 0 0 / 20px 10px repeat-x; }
+  .wrap::after { bottom: -10px; background: radial-gradient(circle at 10px 10px, transparent 6px, var(--paper) 6.5px) 0 0 / 20px 10px repeat-x; }
+
+  h1, h2 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; margin: 0; text-transform: uppercase; letter-spacing: 0.06em; }
+  h1 { font-size: 2rem; line-height: 1.1; }
+  h2 { font-size: 1rem; }
+  .head { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .eyebrow { margin: 0; color: var(--muted); letter-spacing: 0.3em; font-size: 0.85rem; }
+  .meta { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin: 0; font-size: 0.88rem; color: var(--muted); }
+  .lead { color: var(--muted); margin: 4px 0 0; max-width: 42ch; font-size: 0.95rem; }
+  .num { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+  .panel { border-top: 2px dashed var(--line); padding-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; }
+
+  input { font: inherit; color: var(--fg); background: transparent; border: none; border-bottom: 2px dashed var(--line); border-radius: 0; padding: 9px 2px; min-width: 0; width: 100%; }
+  input::placeholder { color: var(--muted); opacity: 0.8; }
+  input:focus { border-bottom-color: var(--accent); }
+  input:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  button { font: inherit; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; border-radius: 3px; border: 2px solid var(--fg); background: transparent; color: var(--fg); padding: 9px 14px; min-height: 44px; }
+  button:hover { background: var(--accent-soft); }
+  .primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+  .primary:hover { background: var(--accent); filter: brightness(1.08); }
+  .quiet { border: none; background: none; color: var(--muted); padding: 8px 6px; min-height: 40px; text-decoration: underline dotted; text-underline-offset: 3px; font-weight: 400; text-transform: none; letter-spacing: 0; }
+  .quiet:hover { background: none; color: var(--danger); }
+
+  .tips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .tips button { padding: 10px 0; }
+  .tips button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+  .tip-custom { display: flex; align-items: center; gap: 12px; }
+  .tip-custom input { max-width: 90px; text-align: center; }
+  .hint { color: var(--muted); font-size: 0.88rem; margin: 0; }
+
+  .example-note { background: var(--accent-soft); border: 2px dashed var(--accent); border-radius: 3px; padding: 10px 12px; font-size: 0.9rem; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+
+  .people { display: flex; flex-direction: column; gap: 20px; }
+  .person-head { display: flex; gap: 8px; align-items: center; }
+  .person-head input { font-family: var(--font-display); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .items { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .items li { display: flex; align-items: center; background: var(--accent-soft); border-radius: 3px; padding-left: 10px; }
+  .items button { border: none; background: none; min-height: 36px; padding: 4px 10px 4px 8px; color: var(--muted); text-transform: none; }
+  .items button:hover { background: none; color: var(--danger); }
+  .empty { color: var(--muted); font-size: 0.9rem; margin: 0; }
+  .add { display: flex; gap: 10px; }
+  .nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; padding-top: 12px; border-top: 1px dotted var(--line); }
+  .nums div { min-width: 0; }
+  .nums dt { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .nums dd { margin: 2px 0 0; font-size: 1.05rem; }
+  .nums .total dd { color: var(--accent); }
+
+  .prompt { border: 2px solid var(--accent); background: var(--accent-soft); border-radius: 3px; padding: 14px; }
+  .prompt h2 { font-size: 0.95rem; }
+  .check { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
+  .check input { width: 22px; height: 22px; padding: 0; flex: none; accent-color: var(--accent); }
+
+  .shared-list { display: flex; flex-direction: column; gap: 10px; }
+  .shared-item { border: 1px dashed var(--fg); border-radius: 3px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .shared-head { display: flex; align-items: baseline; gap: 10px; }
+  .shared-head .who { flex: 1; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+  .shared-head .quiet { align-self: center; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { min-height: 40px; padding: 6px 12px; text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); font-weight: 700; }
+  .shared-add { flex-wrap: wrap; }
+  .shared-add #shared-label { flex: 1 1 100%; }
+  .shared-add #shared-amount { flex: 1 1 120px; }
+
+  .receipt { border-top: 2px dashed var(--line); padding-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .receipt h2 { text-align: center; letter-spacing: 0.12em; }
+  .line { display: flex; align-items: baseline; gap: 8px; }
+  .line .dots { flex: 1; border-bottom: 2px dotted var(--line); transform: translateY(-4px); min-width: 12px; }
+  .line .who { overflow-wrap: anywhere; }
+  .rule { border: 0; border-top: 2px dashed var(--line); margin: 6px 0; }
+  .sum .line { color: var(--muted); }
+  .sum .grand { color: var(--accent); font-weight: 700; font-size: 1.2rem; border-top: 4px double var(--fg); padding-top: 10px; margin-top: 6px; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+  .status { color: var(--muted); font-size: 0.88rem; }
+  .thanks { text-align: center; margin: 4px 0 0; color: var(--muted); letter-spacing: 0.12em; font-size: 0.85rem; text-transform: uppercase; }
+
+  .view { display: flex; flex-direction: column; gap: 20px; }
+  .role-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; text-transform: none; letter-spacing: 0; padding: 14px 16px; width: 100%; }
+  .role-btn strong { text-transform: uppercase; letter-spacing: 0.05em; }
+  .role-btn span { font-weight: 400; font-size: 0.9rem; }
+  .guest-nums { grid-template-columns: 1fr; }
+  #switch-role { align-self: center; }
+
+  textarea { font: inherit; color: var(--fg); background: transparent; border: 2px dashed var(--line); border-radius: 3px; padding: 10px; width: 100%; min-width: 0; resize: vertical; }
+  textarea:focus { border-color: var(--accent); }
+  textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .codebox { font-size: 0.8rem; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    button { transition: background-color .15s, border-color .15s; }
+  }
+</style>
+
+<main class="wrap">
+  <header class="head">
+    <p class="eyebrow">* * *</p>
+    <h1>La Cuenta Porfa</h1>
+    <p class="meta"><span>Fecha: <span id="fecha">--/--/----</span></span><span>Mesa: ____</span></p>
+    <p class="lead">Cada persona anota lo que consumió. La propina se reparte según lo que gastó cada uno.</p>
+  </header>
+
+  <div id="lobby" class="view" hidden>
+    <section class="panel" aria-labelledby="lobby-title">
+      <h2 id="lobby-title">¿Quién eres hoy?</h2>
+      <button type="button" class="primary role-btn" data-role="organizer">
+        <strong>Soy el organizador</strong>
+        <span>Junto las cuentas de todos y calculo la propina.</span>
+      </button>
+      <button type="button" class="role-btn" data-role="guest">
+        <strong>Soy un weón</strong>
+        <span>Anoto solo mis gastos y le mando mi código al organizador.</span>
+      </button>
+    </section>
+  </div>
+
+  <div id="guest-view" class="view" hidden>
+    <section class="panel" aria-labelledby="guest-title">
+      <h2 id="guest-title">Mi parte</h2>
+      <p class="hint">Escribe tu nombre y tus gastos. Al terminar, toca "Enviar mi parte" y mándale el código al organizador.</p>
+      <input id="guest-name" aria-label="Tu nombre" placeholder="Tu nombre" maxlength="30" autocomplete="off">
+      <div id="guest-items"></div>
+      <form class="add" id="guest-form">
+        <input id="guest-amount" inputmode="numeric" autocomplete="off" aria-label="Monto del gasto" placeholder="Monto, por ejemplo 8900">
+        <button type="submit" class="primary">Agregar</button>
+      </form>
+      <dl class="nums guest-nums"><div class="total"><dt>Mi consumo</dt><dd class="num" id="guest-total"></dd></div></dl>
+      <div class="actions">
+        <button type="button" class="primary" id="guest-send">Enviar mi parte</button>
+        <span class="status" data-send-status role="status"></span>
+      </div>
+      <textarea class="codebox" data-codebox readonly rows="3" hidden aria-label="Código para copiar"></textarea>
+      <p class="hint">Los gastos compartidos y la propina los calcula el organizador.</p>
+    </section>
+  </div>
+
+  <div id="organizer-view" class="view" hidden>
+
+  <section class="panel" aria-labelledby="tip-title">
+    <h2 id="tip-title">Propina</h2>
+    <div class="tips" id="tips">
+      <button type="button" data-pct="0">0%</button>
+      <button type="button" data-pct="10">10%</button>
+      <button type="button" data-pct="15">15%</button>
+      <button type="button" data-pct="20">20%</button>
+    </div>
+    <div class="tip-custom">
+      <label for="tip-custom" class="label">Otro porcentaje</label>
+      <input id="tip-custom" type="number" inputmode="decimal" min="0" max="100" step="0.5">
+    </div>
+    <p class="hint">La propina se calcula sobre el consumo de cada persona.</p>
+  </section>
+
+  <div id="example-note" class="example-note" hidden>
+    <span>Estos son datos de ejemplo. Cámbialos o empieza de cero.</span>
+    <button type="button" id="clear">Empezar de cero</button>
+  </div>
+
+  <section aria-labelledby="people-title" class="people-section">
+    <div class="people" id="people"></div>
+  </section>
+  <h2 id="people-title" hidden>Personas</h2>
+
+  <button type="button" class="primary" id="add-person">+ Agregar un weón</button>
+  <div id="new-person-prompt" class="panel prompt" hidden></div>
+
+  <section class="panel" aria-labelledby="shared-title">
+    <h2 id="shared-title">Gastos compartidos</h2>
+    <p class="hint">Para lo que se pidió entre varios, como una entrada o una botella. Se divide en partes iguales entre las personas que marques.</p>
+    <div id="shared-list" class="shared-list"></div>
+    <form class="add shared-add" id="shared-form">
+      <input id="shared-label" aria-label="Descripción del gasto compartido" placeholder="Qué fue, por ejemplo Entrada" maxlength="40" autocomplete="off">
+      <input id="shared-amount" inputmode="numeric" autocomplete="off" aria-label="Monto compartido" placeholder="Monto">
+      <button type="submit" class="primary">Agregar</button>
+    </form>
+  </section>
+
+  <section class="panel" aria-labelledby="import-title">
+    <h2 id="import-title">Juntar partes</h2>
+    <p class="hint">Cada amigo abre la app, elige "Soy un weón", anota sus gastos y te manda su código. Pégalos aquí, uno por línea. Si ya existe alguien con el mismo nombre, se reemplazan sus gastos.</p>
+    <textarea id="import-text" rows="4" aria-label="Códigos de los amigos" placeholder="Pega aquí los códigos (empiezan con CUENTA1:)"></textarea>
+    <div class="actions">
+      <button type="button" class="primary" id="import-btn">Juntar partes</button>
+      <span class="status" id="import-status" role="status"></span>
+    </div>
+  </section>
+
+  <section class="receipt" aria-labelledby="receipt-title" aria-live="polite">
+    <h2 id="receipt-title">Cuenta final</h2>
+    <div id="receipt-lines"></div>
+    <hr class="rule">
+    <div class="sum" id="receipt-sum"></div>
+    <div class="actions">
+      <button type="button" id="copy">Copiar resumen</button>
+      <button type="button" id="reset" class="quiet">Reiniciar cuenta</button>
+      <span class="status" id="status" role="status"></span>
+    </div>
+  </section>
+  </div>
+  <p class="thanks">*** Gracias por la visita ***</p>
+  <button type="button" class="quiet" id="switch-role" hidden>Cambiar de rol</button>
+</main>
+
+<script>
+(function () {
+  var KEY = "propina-justa-v1";
+  var nextId = 1;
+  var nf = new Intl.NumberFormat("es-CL", { maximumFractionDigits: 0 });
+  function money(n) { return "$" + nf.format(n); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+  function seed() {
+    var people = [
+      { id: nextId++, name: "Camila", items: [8900, 4500] },
+      { id: nextId++, name: "Diego", items: [12500] },
+      { id: nextId++, name: "Sofía", items: [6900, 3200] }
+    ];
+    return {
+      tipPct: 10, example: true, people: people,
+      shared: [exampleShared(people)],
+      role: null, guest: { name: "", items: [] }
+    };
+  }
+  function exampleShared(people) {
+    return { id: nextId++, label: "Entrada para compartir", amount: 9000, with: people.map(function (p) { return p.id; }) };
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return null;
+      var s = JSON.parse(raw);
+      if (!s || !Array.isArray(s.people) || typeof s.tipPct !== "number") return null;
+      s.people.forEach(function (p) { if (p.id >= nextId) nextId = p.id + 1; });
+      if (!Array.isArray(s.shared)) {
+        s.shared = s.example ? [exampleShared(s.people)] : [];
+      }
+      s.shared.forEach(function (it) { if (it.id >= nextId) nextId = it.id + 1; });
+      if (s.role !== "organizer" && s.role !== "guest") s.role = null;
+      if (!s.guest || !Array.isArray(s.guest.items)) s.guest = { name: "", items: [] };
+      return s;
+    } catch (e) { return null; }
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  var state = load() || seed();
+
+  // Reparte la propina total entre las personas, proporcional a su consumo,
+  // sin perder ni inventar pesos al redondear.
+  function splitTip(subs, pct) {
+    var total = subs.reduce(function (a, b) { return a + b; }, 0);
+    var tipTotal = Math.round(total * pct / 100);
+    if (total === 0 || tipTotal === 0) return { total: total, tipTotal: 0, tips: subs.map(function () { return 0; }) };
+    var raw = subs.map(function (s) { return tipTotal * s / total; });
+    var tips = raw.map(Math.floor);
+    var rest = tipTotal - tips.reduce(function (a, b) { return a + b; }, 0);
+    raw.map(function (r, i) { return { i: i, f: r - Math.floor(r) }; })
+      .sort(function (a, b) { return b.f - a.f; })
+      .slice(0, rest)
+      .forEach(function (o) { tips[o.i]++; });
+    return { total: total, tipTotal: tipTotal, tips: tips };
+  }
+
+  // Divide un gasto compartido en partes iguales entre las personas marcadas.
+  // Si sobran pesos, se reparten de a uno entre las primeras personas de la lista.
+  function shareOf(item) {
+    var ids = state.people.filter(function (p) { return item.with.indexOf(p.id) >= 0; }).map(function (p) { return p.id; });
+    var map = {};
+    if (!ids.length || !item.amount) return map;
+    var base = Math.floor(item.amount / ids.length);
+    var rem = item.amount - base * ids.length;
+    ids.forEach(function (id, i) { map[id] = base + (i < rem ? 1 : 0); });
+    return map;
+  }
+
+  function calc() {
+    var own = state.people.map(function (p) { return p.items.reduce(function (a, b) { return a + b; }, 0); });
+    var shared = state.people.map(function () { return 0; });
+    state.shared.forEach(function (item) {
+      var m = shareOf(item);
+      state.people.forEach(function (p, i) { if (m[p.id]) shared[i] += m[p.id]; });
+    });
+    var subs = own.map(function (v, i) { return v + shared[i]; });
+    var r = splitTip(subs, state.tipPct);
+    return { own: own, shared: shared, subs: subs, tips: r.tips, total: r.total, tipTotal: r.tipTotal };
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var peopleEl = $("people");
+
+  function renderPeople() {
+    peopleEl.innerHTML = state.people.map(function (p) {
+      var items = p.items.length
+        ? '<ul class="items">' + p.items.map(function (v, i) {
+            return '<li><span class="num">' + money(v) + '</span><button type="button" data-action="del-item" data-index="' + i + '" aria-label="Quitar ' + money(v) + '">×</button></li>';
+          }).join("") + "</ul>"
+        : '<p class="empty">Aún no hay gastos.</p>';
+      return '<article class="panel" data-id="' + p.id + '">' +
+        '<div class="person-head">' +
+          '<input class="name" id="name-' + p.id + '" aria-label="Nombre" value="' + esc(p.name) + '" maxlength="30">' +
+          '<button type="button" class="quiet" data-action="del-person">Quitar</button>' +
+        "</div>" + items +
+        '<form class="add" data-form>' +
+          '<input id="amt-' + p.id + '" inputmode="numeric" autocomplete="off" aria-label="Monto del gasto" placeholder="Monto, por ejemplo 8900">' +
+          '<button type="submit" class="primary">Agregar</button>' +
+        "</form>" +
+        '<dl class="nums">' +
+          '<div><dt>Consumo</dt><dd class="num" data-sub></dd></div>' +
+          '<div><dt>Propina</dt><dd class="num" data-tip></dd></div>' +
+          '<div class="total"><dt>A pagar</dt><dd class="num" data-total></dd></div>' +
+        '</dl><p class="hint" data-shared-note></p></article>';
+    }).join("");
+    update();
+  }
+
+  // Persona recién agregada: mientras tenga valor, se le pregunta en qué gastos compartidos participó.
+  var pendingId = null;
+
+  function renderPrompt() {
+    var el = $("new-person-prompt");
+    var person = null;
+    state.people.forEach(function (p) { if (p.id === pendingId) person = p; });
+    if (!person || !state.shared.length) { el.hidden = true; el.innerHTML = ""; return; }
+    el.hidden = false;
+    el.innerHTML = "<h2>¿" + esc(person.name || "Este weón") + " participó en estos gastos compartidos?</h2>" +
+      state.shared.map(function (item) {
+        var on = item.with.indexOf(person.id) >= 0;
+        return '<label class="check"><input type="checkbox" data-shared="' + item.id + '"' + (on ? " checked" : "") + "><span>" + esc(item.label) + " · " + money(item.amount) + "</span></label>";
+      }).join("") +
+      '<button type="button" class="primary" id="prompt-done">Listo</button>';
+  }
+
+  function renderShared() {
+    var el = $("shared-list");
+    if (!state.shared.length) {
+      el.innerHTML = '<p class="empty">Aún no hay gastos compartidos.</p>';
+      return;
+    }
+    el.innerHTML = state.shared.map(function (item) {
+      var n = Object.keys(shareOf(item)).length;
+      var chips = state.people.map(function (p) {
+        var on = item.with.indexOf(p.id) >= 0;
+        return '<button type="button" class="chip" data-action="toggle" data-person="' + p.id + '" aria-pressed="' + on + '">' + esc(p.name || "Sin nombre") + "</button>";
+      }).join("");
+      var note = n ? "Cada persona paga cerca de " + money(Math.round(item.amount / n)) + "." : "Marca al menos a una persona; mientras tanto no se suma a la cuenta.";
+      return '<div class="shared-item" data-shared-id="' + item.id + '">' +
+        '<div class="shared-head"><span class="who">' + esc(item.label) + '</span><span class="num">' + money(item.amount) + '</span>' +
+        '<button type="button" class="quiet" data-action="del-shared">Quitar</button></div>' +
+        '<div class="chips">' + chips + "</div>" +
+        '<p class="hint">' + note + "</p></div>";
+    }).join("");
+  }
+
+  function update() {
+    renderShared();
+    renderPrompt();
+    var c = calc();
+    state.people.forEach(function (p, i) {
+      var card = peopleEl.querySelector('[data-id="' + p.id + '"]');
+      if (!card) return;
+      card.querySelector("[data-shared-note]").textContent = c.shared[i] > 0 ? "El consumo incluye " + money(c.shared[i]) + " de gastos compartidos." : "";
+      card.querySelector("[data-sub]").textContent = money(c.subs[i]);
+      card.querySelector("[data-tip]").textContent = money(c.tips[i]);
+      card.querySelector("[data-total]").textContent = money(c.subs[i] + c.tips[i]);
+    });
+
+    $("receipt-lines").innerHTML = state.people.map(function (p, i) {
+      return '<div class="line"><span class="who">' + esc(p.name || "Sin nombre") + '</span><span class="dots"></span><span class="num">' + money(c.subs[i] + c.tips[i]) + "</span></div>";
+    }).join("") || '<p class="empty">Agrega weones para ver la cuenta.</p>';
+
+    $("receipt-sum").innerHTML =
+      '<div class="line"><span>Consumo</span><span class="dots"></span><span class="num">' + money(c.total) + "</span></div>" +
+      '<div class="line"><span>Propina (' + state.tipPct + '%)</span><span class="dots"></span><span class="num">' + money(c.tipTotal) + "</span></div>" +
+      '<div class="line grand"><span>Total</span><span class="dots"></span><span class="num">' + money(c.total + c.tipTotal) + "</span></div>";
+
+    var btns = document.querySelectorAll("#tips button");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute("aria-pressed", Number(btns[i].dataset.pct) === state.tipPct ? "true" : "false");
+    }
+    var custom = $("tip-custom");
+    if (document.activeElement !== custom) custom.value = state.tipPct;
+    $("example-note").hidden = !state.example;
+    save();
+  }
+
+  function findPerson(el) {
+    var card = el.closest("[data-id]");
+    if (!card) return null;
+    var id = Number(card.dataset.id);
+    for (var i = 0; i < state.people.length; i++) if (state.people[i].id === id) return { p: state.people[i], index: i };
+    return null;
+  }
+
+  function addPerson() {
+    var p = { id: nextId++, name: "Weón " + (state.people.length + 1), items: [] };
+    state.people.push(p);
+    // Por defecto entra en todos los gastos compartidos; el aviso permite desmarcar los que no.
+    state.shared.forEach(function (it) { it.with.push(p.id); });
+    pendingId = p.id;
+    renderPeople();
+    var input = $("name-" + p.id);
+    input.focus(); input.select();
+  }
+
+  $("tips").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-pct]");
+    if (!b) return;
+    state.tipPct = Number(b.dataset.pct);
+    $("tip-custom").value = state.tipPct;
+    update();
+  });
+
+  $("tip-custom").addEventListener("input", function (e) {
+    var v = parseFloat(e.target.value);
+    if (isNaN(v) || v < 0) v = 0;
+    if (v > 100) v = 100;
+    state.tipPct = v;
+    update();
+  });
+  $("tip-custom").addEventListener("blur", function (e) { e.target.value = state.tipPct; });
+
+  peopleEl.addEventListener("input", function (e) {
+    if (!e.target.classList.contains("name")) return;
+    var f = findPerson(e.target);
+    if (!f) return;
+    f.p.name = e.target.value;
+    state.example = false;
+    update();
+  });
+
+  peopleEl.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var f = findPerson(e.target);
+    if (!f) return;
+    var input = e.target.querySelector("input");
+    var v = parseInt(input.value.replace(/\D/g, ""), 10);
+    if (!v || v <= 0) { input.focus(); return; }
+    f.p.items.push(v);
+    state.example = false;
+    renderPeople();
+    $("amt-" + f.p.id).focus();
+  });
+
+  peopleEl.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-action]");
+    if (!b) return;
+    var f = findPerson(b);
+    if (!f) return;
+    state.example = false;
+    if (b.dataset.action === "del-item") {
+      f.p.items.splice(Number(b.dataset.index), 1);
+      renderPeople();
+    } else if (b.dataset.action === "del-person") {
+      state.people.splice(f.index, 1);
+      state.shared.forEach(function (it) {
+        it.with = it.with.filter(function (id) { return id !== f.p.id; });
+      });
+      renderPeople();
+    }
+  });
+
+  $("add-person").addEventListener("click", function () { state.example = false; addPerson(); });
+
+  // Deja la cuenta en blanco: dos personas vacías, sin gastos compartidos y propina de 10%.
+  function resetAll() {
+    state.people = [
+      { id: nextId++, name: "Weón 1", items: [] },
+      { id: nextId++, name: "Weón 2", items: [] }
+    ];
+    state.shared = [];
+    state.tipPct = 10;
+    state.example = false;
+    pendingId = null;
+    renderPeople();
+  }
+
+  $("clear").addEventListener("click", resetAll);
+
+  // Reiniciar pide confirmar con un segundo toque, para no borrar la cuenta por accidente.
+  var resetTimer = null;
+  function disarmReset() {
+    clearTimeout(resetTimer);
+    var b = $("reset");
+    delete b.dataset.armed;
+    b.textContent = "Reiniciar cuenta";
+  }
+  $("reset").addEventListener("click", function () {
+    var b = $("reset");
+    if (!b.dataset.armed) {
+      b.dataset.armed = "1";
+      b.textContent = "¿Estay seguro weón?";
+      resetTimer = setTimeout(disarmReset, 4000);
+      return;
+    }
+    disarmReset();
+    resetAll();
+  });
+
+  $("new-person-prompt").addEventListener("change", function (e) {
+    var box = e.target.closest("input[data-shared]");
+    if (!box || pendingId === null) return;
+    var id = Number(box.dataset.shared);
+    state.shared.forEach(function (it) {
+      if (it.id !== id) return;
+      var at = it.with.indexOf(pendingId);
+      if (box.checked && at < 0) it.with.push(pendingId);
+      if (!box.checked && at >= 0) it.with.splice(at, 1);
+    });
+    update();
+    var again = $("new-person-prompt").querySelector('input[data-shared="' + id + '"]');
+    if (again) again.focus();
+  });
+
+  $("new-person-prompt").addEventListener("click", function (e) {
+    if (!e.target.closest("#prompt-done")) return;
+    pendingId = null;
+    update();
+  });
+
+  $("shared-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var amountEl = $("shared-amount");
+    var v = parseInt(amountEl.value.replace(/\D/g, ""), 10);
+    if (!v || v <= 0) { amountEl.focus(); return; }
+    var label = $("shared-label").value.trim() || "Compartido";
+    state.shared.push({ id: nextId++, label: label, amount: v, with: state.people.map(function (p) { return p.id; }) });
+    state.example = false;
+    $("shared-label").value = "";
+    amountEl.value = "";
+    update();
+    $("shared-label").focus();
+  });
+
+  $("shared-list").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-action]");
+    if (!b) return;
+    var card = b.closest("[data-shared-id]");
+    if (!card) return;
+    var id = Number(card.dataset.sharedId);
+    var index = -1;
+    state.shared.forEach(function (it, i) { if (it.id === id) index = i; });
+    if (index < 0) return;
+    state.example = false;
+    if (b.dataset.action === "toggle") {
+      var pid = Number(b.dataset.person);
+      var item = state.shared[index];
+      var at = item.with.indexOf(pid);
+      if (at >= 0) item.with.splice(at, 1); else item.with.push(pid);
+      update();
+      var again = $("shared-list").querySelector('[data-shared-id="' + id + '"] [data-person="' + pid + '"]');
+      if (again) again.focus();
+    } else if (b.dataset.action === "del-shared") {
+      state.shared.splice(index, 1);
+      update();
+    }
+  });
+
+  // Código de una persona: su nombre y sus gastos propios, convertidos a texto corto (base64) para mandarlo por WhatsApp.
+  function encodePart(name, items) {
+    var json = JSON.stringify({ v: 1, n: name, i: items });
+    var bytes = new TextEncoder().encode(json);
+    var bin = "";
+    bytes.forEach(function (b) { bin += String.fromCharCode(b); });
+    return "CUENTA1:" + btoa(bin);
+  }
+  function decodePart(code) {
+    try {
+      var bin = atob(code.replace("CUENTA1:", ""));
+      var bytes = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      var d = JSON.parse(new TextDecoder().decode(bytes));
+      if (!d || typeof d.n !== "string" || !Array.isArray(d.i) || d.i.length > 200) return null;
+      var items = d.i.filter(function (v) { return typeof v === "number" && isFinite(v) && v > 0 && v <= 1000000000 && Math.floor(v) === v; });
+      return { name: d.n.trim().slice(0, 30) || "Sin nombre", items: items };
+    } catch (e) { return null; }
+  }
+
+  function sendPart(p, card) {
+    var status = card.querySelector("[data-send-status]");
+    var box = card.querySelector("[data-codebox]");
+    if (!p.items.length) { status.textContent = "Agrega al menos un gasto primero."; return; }
+    var total = p.items.reduce(function (a, b) { return a + b; }, 0);
+    var text = "Mis gastos en La Cuenta Porfa (" + (p.name || "Sin nombre") + ": " + money(total) + ")\n" + encodePart(p.name || "Sin nombre", p.items);
+    function showBox() {
+      box.hidden = false;
+      box.value = text;
+      box.focus();
+      box.select();
+      status.textContent = "Copia este texto y mándalo.";
+    }
+    function copy() {
+      try {
+        navigator.clipboard.writeText(text).then(function () { status.textContent = "Copiado. Pégalo en WhatsApp."; }, showBox);
+      } catch (err) { showBox(); }
+    }
+    if (navigator.share) {
+      try {
+        navigator.share({ text: text }).then(function () { status.textContent = "Listo."; }, function (err) {
+          if (err && err.name === "AbortError") return;
+          copy();
+        });
+      } catch (err) { copy(); }
+    } else { copy(); }
+  }
+
+  $("import-btn").addEventListener("click", function () {
+    var status = $("import-status");
+    var codes = $("import-text").value.match(/CUENTA1:[A-Za-z0-9+\/=]+/g) || [];
+    if (!codes.length) { status.textContent = "No encontré ningún código. Pégalo completo, desde CUENTA1:"; return; }
+    var added = 0, updated = 0, bad = 0;
+    codes.forEach(function (c) {
+      var part = decodePart(c);
+      if (!part) { bad++; return; }
+      var key = part.name.trim().toLowerCase();
+      var found = null;
+      state.people.forEach(function (p) { if (key && p.name.trim().toLowerCase() === key) found = p; });
+      if (found) { found.items = part.items; updated++; return; }
+      var np = { id: nextId++, name: part.name, items: part.items };
+      state.people.push(np);
+      state.shared.forEach(function (it) { it.with.push(np.id); });
+      added++;
+    });
+    var msg = [];
+    if (added) msg.push(added + (added === 1 ? " persona agregada" : " personas agregadas"));
+    if (updated) msg.push(updated + (updated === 1 ? " actualizada" : " actualizadas"));
+    if (bad) msg.push(bad + (bad === 1 ? " código no se pudo leer" : " códigos no se pudieron leer"));
+    status.textContent = msg.join(", ") + ".";
+    if (added + updated > 0) {
+      state.example = false;
+      $("import-text").value = "";
+      renderPeople();
+    }
+  });
+
+  // Roles: el organizador ve la app completa; cada weón ve solo su tarjeta para anotar gastos y generar su código.
+  function showView() {
+    var role = state.role;
+    $("lobby").hidden = role !== null;
+    $("organizer-view").hidden = role !== "organizer";
+    $("guest-view").hidden = role !== "guest";
+    $("switch-role").hidden = role === null;
+    if (role === "guest") {
+      $("guest-name").value = state.guest.name;
+      renderGuest();
+    }
+  }
+
+  function renderGuest() {
+    var g = state.guest;
+    $("guest-items").innerHTML = g.items.length
+      ? '<ul class="items">' + g.items.map(function (v, i) {
+          return '<li><span class="num">' + money(v) + '</span><button type="button" data-action="del-guest-item" data-index="' + i + '" aria-label="Quitar ' + money(v) + '">×</button></li>';
+        }).join("") + "</ul>"
+      : '<p class="empty">Aún no hay gastos.</p>';
+    $("guest-total").textContent = money(g.items.reduce(function (a, b) { return a + b; }, 0));
+    save();
+  }
+
+  $("lobby").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-role]");
+    if (!b) return;
+    state.role = b.dataset.role;
+    save();
+    showView();
+    if (state.role === "guest") $("guest-name").focus();
+  });
+
+  $("switch-role").addEventListener("click", function () {
+    state.role = null;
+    save();
+    showView();
+  });
+
+  $("guest-name").addEventListener("input", function (e) {
+    state.guest.name = e.target.value;
+    save();
+  });
+
+  $("guest-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var input = $("guest-amount");
+    var v = parseInt(input.value.replace(/\D/g, ""), 10);
+    if (!v || v <= 0) { input.focus(); return; }
+    state.guest.items.push(v);
+    input.value = "";
+    renderGuest();
+    input.focus();
+  });
+
+  $("guest-items").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-action]");
+    if (!b) return;
+    state.guest.items.splice(Number(b.dataset.index), 1);
+    renderGuest();
+  });
+
+  $("guest-send").addEventListener("click", function () {
+    var view = $("guest-view");
+    if (!state.guest.name.trim()) {
+      view.querySelector("[data-send-status]").textContent = "Escribe tu nombre primero.";
+      $("guest-name").focus();
+      return;
+    }
+    sendPart(state.guest, view);
+  });
+
+  $("copy").addEventListener("click", function () {
+    var c = calc();
+    var lines = state.people.map(function (p, i) {
+      return (p.name || "Sin nombre") + ": " + money(c.subs[i] + c.tips[i]) + " (consumo " + money(c.subs[i]) + " + propina " + money(c.tips[i]) + ")";
+    });
+    lines.push("Total: " + money(c.total + c.tipTotal) + " (propina " + state.tipPct + "%)");
+    var text = lines.join("\n");
+    var status = $("status");
+    function done(msg) { status.textContent = msg; setTimeout(function () { status.textContent = ""; }, 3000); }
+    try {
+      navigator.clipboard.writeText(text).then(function () { done("Resumen copiado."); }, function () { done("No se pudo copiar desde esta vista."); });
+    } catch (err) { done("No se pudo copiar desde esta vista."); }
+  });
+
+  try { $("fecha").textContent = new Date().toLocaleDateString("es-CL"); } catch (e) {}
+  renderPeople();
+  showView();
+})();
+</script>
+
+</body></html>
